@@ -5,3 +5,7 @@ This repository contains data, code, and analysis associated with the Arkansas R
 `code\` = contains scripts use for data analysis, processing, creating figures, etc.
 `data\` = contains raw data and metadata (such as data source, etc.)
 `results\` = contains processed data and results
+
+## Some resources on workflows, organization, and naming conventions
+ * [Project-oriented workflows](https://www.tidyverse.org/blog/2017/12/workflow-vs-script/)
+ * [How to name files](https://speakerdeck.com/jennybc/how-to-name-files)
