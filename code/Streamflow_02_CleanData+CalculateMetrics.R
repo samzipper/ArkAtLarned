@@ -72,13 +72,36 @@ data_path<- file.path("data", "Historical_Larned_Arkflow.CSV")
                   year_dif= year_end - year_start,) %>%
     dplyr::group_by(year_start)
     
+
  
 #Average Length of No Flow
-  #average from above
-  #In order to plot over time, keep the year
+  #Code TBD
+  Average_NoFlow<-c(0,0,0,0,50.75, 173.5, 161.5, 365, 172.5, 15, 6, 0, 0, 196, 365, 178, 178, 154.5, 73, 32.33, 40.33, 0,0 ) 
 
-#Determine When it dries out
+  #Determine When it dries out
+  
+
+ 
   #Determine First day of Year dry
+  FirstDayofYear_NoFlow<-c(0,0,0,0, 108, 1, 1, 1, 1, 1, 240, 0, 0, 169, 1, 1, 1, 1, 1, 1, 65, 0,0)
+  
+  yearly_df<-
+    yearly_df %>% 
+    dplyr::mutate(AveargeNoFlowLength = Average_NoFlow,
+                  FirstDayofNoFlow=FirstDayofYear_NoFlow)
+  
+  FirstDOY_NOFlowPeriod<-dryPeriods$DOY_start
   #Determine average first day over all years
+  
+  
+  ##Baseflow
+ 
+    baseflow<- EcoHydRology::BaseflowSeparation(stream_df$discharge_cms)
+ stream_df<-cbind(stream_df, baseflow)
+  
+  }
 
-}
+
+readr::write_csv(stream_df, file.path("data", "ArkLarned_Baseflow.CSV"))
+readr::write_csv(dryPeriods, file.path("data", "ArkLarned_DryPeriods.CSV"))
+readr::write_csv(yearly_df, file.path("data", "YearlySummary_ArkLarned.CSV"))
