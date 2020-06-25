@@ -7,6 +7,7 @@ library(dataRetrieval)
 #library(EcoHydRology) Doesn't agree with magrittr pipe, will load when needed
 library(lubridate)
 library(heatwaveR)
+library(patchwork)
 
 ## color palettes
 # categorical color palette from https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/
