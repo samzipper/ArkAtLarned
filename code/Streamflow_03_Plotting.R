@@ -4,6 +4,7 @@ source(file.path("code", "paths+packages.R"))
 
 #Read in Baseflow DataSet
 data_path<- file.path("data", "ArkLarned_Baseflow.CSV")
+data_path2a<- file.path("data", "ArkLarned_DryPeriods.CSV") 
 
 if (file.exists(data_path)){
  
@@ -26,60 +27,40 @@ if (file.exists(data_path)){
   DOY$DOY <- unlist(DOY$doy)
   DOY$bt<-unlist(DOY$bt)
   
-  #Discharge per DOY of all Years, and aerage in blue line
-  ggplot() +
-    geom_point(data=DOY_df, aes(x=DOY, y=discharge_cms, group=year))+
-    geom_line(data=DOY, aes(x=DOY, y=DOY_avg_q), color=col.cat.blu)+
-    geom_line(data=DOY, aes(x=DOY, y = bf), color=col.cat.red)+
-    ggsave(file.path('results', "Annual_Discharge.PNG"),
-           width = 8, height = 8, units = "in")
-
-  
-  #Discharge over time 
-  month_df %>%
-    ggplot(aes(x=year, y=monthly_base))+
-    geom_point()+
-    geom_line()+
-  facet_wrap(~ month, ncol = 3, scales = "free_y") +
-    labs(title = "Monthly BaseFlow Ark @ Larned 1998-2020",
-         subtitle = "Data plotted by Month",
-         y = "Flow (cms)",
-         x = "Year") + theme_bw(base_size = 10)+
-    ggsave(file.path('results', "Monthly_Flow_Over_Time.png"),
-           width = 8, height = 8, units = "in")
-  
-  month_df$month<-as.factor(month_df$month)
-    ggplot(data=month_df)+
-    geom_boxplot(aes(x=month, y= monthly_base))
-  
-  Ark_df %>%
-    ggplot() +
-    geom_line(aes(x=Date, y= discharge_cms))
-  
-  p<-ggplot(data = Ark_df) +
-    geom_line(aes(x=Date, y= bt), color='black')+
-    #geom_line(aes(x=Date, y= qft...9), color = col.cat.red, linetype = 'dotted')+
-    ggtitle("Ark Baseflow (Black) and Quick Flow (Red)")+ 
-    xlab("Date")+
-    ylab('Discharge (cms)')
-plotly_build(p)
-  
-ggplot(data = Ark_df)+
-  geom_point(aes(x=discharge_cms, y=bt...8))
-
-ggplot(data = Ark_df)+
-  geom_point(aes(x=discharge_cms, y=qft...9))
-
-ggplot(data = Ark_df)+
-  geom_point(aes(x=qft...9, y=bt...8))
+ 
 }
 
-dryPeriods %>%
-  group_by(box_len)
+###########Figure 2 #################
+#Plot of the Baseflow and Disharge over Time, highlighting the dry periods
+
+##Make highlighted areas for drought
+rects <- data.frame(start=dryPeriods$date_start, end=dryPeriods$date_end, group=seq_along(start))
+
+
+Ark_df %>%
+  ggplot() +
+  geom_line(aes(x=Date, y= discharge_cms))+
+  geom_line(aes(x=Date, y = bt), color = col.cat.blu)+
+  geom_rect(data=rects, inherit.aes=FALSE,
+            aes(xmin=start, xmax=end, ymin=min(Ark_df$discharge_cms),
+                ymax=max(Ark_df$discharge_cms), group=group), 
+            color="transparent", fill="orange", alpha=0.3)+
+  labs(x = "Date",
+       y = "Discharge (cms)")
+  
+
+ggsave(file.path('plots', "Hydrograph.PNG"),
+       width = 8, height = 4, units = "in")
 
 
 
 ########### FIGURE 3 ################
+
+
+dryPeriods <-readr::read_csv(data_path2a, col_types = cols())
+dryPeriods %>%
+  group_by(box_len)
+
 data_path2<- file.path("data", "YearlySummary_ArkLarned.CSV")
 yearly_df<-read.csv(data_path2) 
 
@@ -139,30 +120,57 @@ ggsave(file.path('plots', "Seasons_of_DryPeriods.png"),
        width = 8, height = 4, units = "in")
 
 
-
+########Figure 6 Baseflow Index #########
 
 #Plot percentage of Baseflow over Time
 year_df$year<-as.factor(year_df$year)
-ggplot(year_df)+
-  geom_boxplot(aes(x=year, y=percentbase))
 
-Ark_df$monthcode<-paste(Ark_df$year,"-",Ark_df$month)
-box<-ggplot(Ark_df)+
-  geom_boxplot(aes(x=monthcode, y=bt))
+#6A Annual Baseflow Index boxplot per year
+AnnualBaseflow<- year_df %>%
+  dplyr::group_by(year) %>%
+  summarise(Baseflow= mean(percentbase))
+AnnualBaseflow$Baseflow[is.na(AnnualBaseflow$Baseflow)]<-0
 
-plotly_build(box)
+Fig6A<-ggplot(data=year_df, aes(x=year, y=percentbase))+
+  geom_boxplot()+
+  stat_summary(fun=mean, geom="point", shape=15,color=col.cat.blu)+
+  xlab('Year')+
+  ylab('Baseflow Index')
 
-ggplot()+
-  geom_point(aes(x=Ark_df$percentbase, y=Ark_df$discharge_cms))
+##6b Monthly Baseflow Index 
+Ark_df%>%
+  dplyr::group_by(month)
+Fig6b<-ggplot(data=Ark_df, aes(x=month, y=bt, group=month))+
+  geom_boxplot()+
+  stat_summary(fun=mean, geom="point", shape=15,color=col.cat.blu)+
+  xlab('Year')+
+  ylab('Baseflow Index')+
+  scale_x_discrete(c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'))
 
 
-ggplot(data=Ark_df)+
-  geom_point(aes(x=DOY, y=bt))
 
-ggplot(Ark_df)+
-  geom_point(aes(x=DOY, y=qft))
+  
 
-ggplot(Ark_df)+
-  geom_point(aes(x=qft, y=bt))
+################Extra Plots ############################3
+#Discharge per DOY of all Years, and average in blue line
+ggplot() +
+  geom_point(data=DOY_df, aes(x=DOY, y=discharge_cms, group=year))+
+  geom_line(data=DOY, aes(x=DOY, y=DOY_avg_q), color=col.cat.blu)+
+  geom_line(data=DOY, aes(x=DOY, y = bf), color=col.cat.red)
+
+
+
+#Discharge over time 
+month_df %>%
+  ggplot(aes(x=year, y=monthly_base))+
+  geom_point()+
+  geom_line()+
+  facet_wrap(~ month, ncol = 3, scales = "free_y") +
+  labs(title = "Monthly BaseFlow Ark @ Larned 1998-2020",
+       subtitle = "Data plotted by Month",
+       y = "Flow (cms)",
+       x = "Year") + theme_bw(base_size = 10)+
+  ggsave(file.path('plots', "Monthly_Baseflow.png"),
+         width = 8, height = 8, units = "in")
 
              
