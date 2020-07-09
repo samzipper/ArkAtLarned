@@ -39,14 +39,14 @@ rects <- data.frame(start=dryPeriods$date_start, end=dryPeriods$date_end, group=
 
 Ark_df %>%
   ggplot() +
-  geom_line(aes(x=Date, y= discharge_cms))+
-  geom_line(aes(x=Date, y = bt), color = col.cat.blu)+
+  geom_line(aes(x=Date, y= log10(discharge_cms+.01)))+
+  geom_line(aes(x=Date, y = log10(bt +.01)), color = col.cat.blu)+
   geom_rect(data=rects, inherit.aes=FALSE,
-            aes(xmin=start, xmax=end, ymin=min(Ark_df$discharge_cms),
-                ymax=max(Ark_df$discharge_cms), group=group), 
+            aes(xmin=start, xmax=end, ymin=min(log10(Ark_df$discharge_cms)),
+                ymax=max(log10(Ark_df$discharge_cms)), group=group), 
             color="transparent", fill="orange", alpha=0.3)+
   labs(x = "Date",
-       y = "Discharge (cms)")
+       y = "Log10 Discharge (cms)")
   
 
 ggsave(file.path('plots', "Hydrograph.PNG"),
