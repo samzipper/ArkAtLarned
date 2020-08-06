@@ -37,8 +37,8 @@ if (file.exists(data_path)){
 rects <- data.frame(start=dryPeriods$date_start, end=dryPeriods$date_end, group=seq_along(start))
 
 
-Ark_df %>%
-  ggplot() +
+
+  hydrograph<-ggplot(data=Ark_df) +
   geom_line(aes(x=Date, y= log10(discharge_cms+.01)))+
   geom_line(aes(x=Date, y = log10(bt +.01)), color = col.cat.blu)+
   geom_rect(data=rects, inherit.aes=FALSE,
@@ -69,6 +69,7 @@ Fig3a<- ggplot(data=yearly_df)+
   geom_point(aes(x=Year, y=Percent_Dry))+
   geom_line(aes(x=Year, y=Percent_Dry))+
   ylab('% of Year Dry')
+
 
 ##Figure 3b
 Fig3b<-ggplot(data=dryPeriods)+
@@ -143,11 +144,14 @@ Ark_df%>%
 Fig6b<-ggplot(data=Ark_df, aes(x=month, y=bt, group=month))+
   geom_boxplot()+
   stat_summary(fun=mean, geom="point", shape=15,color=col.cat.blu)+
-  xlab('Year')+
+  xlab('Month')+
   ylab('Baseflow Index')+
-  scale_x_discrete(c('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'))
+  scale_x_discrete('month')
 
+Fig6A / Fig6b
 
+ggsave(file.path('plots', "MonthlyBaseflowIndex.PNG"),
+       width = 8, height = 4, units = "in")
 
   
 
@@ -173,4 +177,23 @@ month_df %>%
   ggsave(file.path('plots', "Monthly_Baseflow.png"),
          width = 8, height = 8, units = "in")
 
-             
+yearly_df$Date=paste(yearly_df$Year, 1, 1, sep="-") %>% ymd() %>% as.Date()
+
+ggplot(data = yearly_df)+
+  geom_point(aes(x=Date, y=Percent_Dry))+
+  geom_line(aes(x=Date, y=Percent_Dry), lwd=1)+
+  labs(title="Dry Periods (highlighted) and Precipitation at the Arkansas River near Larned, KS")+
+  
+  geom_rect(data=rects, inherit.aes=FALSE,
+            aes(xmin=start, xmax=end, ymin= min(df_meteo_mo$prcp_mm_sum),
+                ymax= max(df_meteo_mo$prcp_mm_sum/3.75), group=group), 
+            color="transparent", fill="orange", alpha=0.3)+
+  geom_line(data=df_meteo_mo, aes(x=date, y= prcp_mm_sum/3.75), lwd=1, color = col.cat.blu)+
+  scale_y_continuous(name = 'Percent of Year Dry',
+                     sec.axis = sec_axis(~.*3.75 , name="Monthly Precipitation (mm)"))+
+  theme( axis.line.y.right = element_line(color = col.cat.blu),
+         axis.ticks.y.right = element_line(color = col.cat.blu),
+         axis.title.y.right = element_text(color = col.cat.blu))
+
+ggsave(file.path('plots', "CombinePercentDry_Rain.png"),
+       width = 8, height = 4, units = "in")

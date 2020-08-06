@@ -59,7 +59,7 @@ df_meteo_yr <-
                    tmax_c = mean(tmax_c_mean),
                    tmin_c = mean(tmin_c_mean)) %>% 
   dplyr::ungroup()
-df_meteo_yr$date <- paste(df_meteo_yr$year, "6", "15", sep="-") %>% ymd() %>% as.Date()
+df_meteo_yr$date <- paste(df_meteo_yr$year, "1", "1", sep="-") %>% ymd() %>% as.Date()
 
 
 ## annual extremes
@@ -79,7 +79,7 @@ ggplot(data=df_meteo)+
     sec.axis = sec_axis( trans=~.*1, name="Precip (mm)")
     )
 
-ggplot(data=df_meteo_mo)+
+monthly_meanTemp<-ggplot(data=df_meteo_mo)+
   geom_line(data=df_meteo_mo, aes(x=date, y= TAvg_c_mean))+
   geom_rect(data=rects, inherit.aes=FALSE,
             aes(xmin=start, xmax=end, ymin= min(df_meteo_mo$TAvg_c_mean),
