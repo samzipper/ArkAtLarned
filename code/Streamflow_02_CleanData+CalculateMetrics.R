@@ -17,7 +17,10 @@ data_path<- file.path("data", "Historical_Larned_Arkflow.CSV")
       stream_df %>%
       dplyr::group_by(year, month) %>%
       dplyr::summarize(Date_mid = mean(Date),
-                       Q_cms_mean = mean(discharge_cms))
+                       Q_cms_mean = mean(discharge_cms),
+                       Q_cms_sum = sum(discharge_cms))
+    stream_monthly$date<-as.Date(with(stream_monthly, paste(year, month, 1,sep="-")), "%Y-%m-%d")
+    
     
     #Calculate frequency of No Flow
     #Group by year
@@ -124,7 +127,7 @@ data_path<- file.path("data", "Historical_Larned_Arkflow.CSV")
 readr::write_csv(stream_df, file.path("data", "ArkLarned_Baseflow.CSV"))
 readr::write_csv(dryPeriods, file.path("data", "ArkLarned_DryPeriods.CSV"))
 readr::write_csv(yearly_df, file.path("data", "YearlySummary_ArkLarned.CSV"))
-
+readr::write_csv(stream_monthly, file.path("data", "MonthlyStreamflow.CSV"))
 
 
 

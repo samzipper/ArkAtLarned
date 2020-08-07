@@ -1,0 +1,82 @@
+#Pumping_02_Plotting.R
+
+source(file.path("code", "paths+packages.R"))
+data_path<-file.path("data", "WIMAS_AnnualSummary_Larned.CSV")
+WIMAS_summary<-readr::read_csv(data_path, col_types = cols())
+
+
+#Load in Dry Periods
+data_path2<- file.path("data", "ArkLarned_DryPeriods.CSV")
+dryPeriods<- readr::read_csv(data_path2, col_types = cols())
+rects <- data.frame(start=dryPeriods$date_start, end=dryPeriods$date_end, group=seq_along(start))
+
+
+##Time Series of Average Annual Water Pumping of pumps over 10km radius
+ggplot(data=WIMAS_summary)+
+  geom_line(aes(x=date, y=AvgWater_m3))
+
+
+##Time Series of Cummulative Water Pumping of pumps in 10km radius
+  #Plots are the same but with a different y axis values
+
+YearlyPump<-ggplot(data=WIMAS_summary)+
+  geom_rect(data=rects, inherit.aes=FALSE,
+            aes(xmin=start, xmax=end, ymin = min(WIMAS_summary$SumWater_m3),
+                ymax= max(WIMAS_summary$SumWater_m3), group=group), 
+            color="transparent", fill="orange", alpha=0.3)+
+  geom_line(aes(x=date, y=SumWater_m3))+
+  geom_point(aes(x=date, y=SumWater_m3))+
+  xlim(as.Date("1998-01-01"),as.Date("2019-1-1"))+
+  labs(y="Water Extracted (m3)",
+       x=NULL)
+  
+YearlyPump
+
+###Annual Meteorologic Trends
+data_path2<- file.path("data", "AnnualWeather.CSV")
+AnnualWeather<-readr::read_csv(data_path2, col_types = cols())
+
+YearlyPrecip<-ggplot(AnnualWeather, aes(x = date, y = prcp_mm)) +
+  geom_rect(data=rects, inherit.aes=FALSE,
+            aes(xmin=start, xmax=end, ymin = min(AnnualWeather$prcp_mm),
+                ymax= max(AnnualWeather$prcp_mm), group=group), 
+            color="transparent", fill="orange", alpha=0.3)+
+  geom_line() +
+  geom_point()+
+  labs(y="Precipitation (mm)",
+       x =NULL)
+
+YearlyPrecip
+WIMAS_summary<-left_join(WIMAS_summary, AnnualWeather, by = 'date')
+
+
+Annual_pump<-ggplot(data = WIMAS_summary, aes(x= prcp_mm, y = SumWater_m3))+
+  geom_point()+
+  geom_smooth(method = lm, se = FALSE)
+
+eq<-lm(SumWater_m3 ~ prcp_mm, WIMAS_summary)
+
+summary(eq)
+#R2 is 0.3081
+
+data_path4<- file.path("data", "YearlySummary_ArkLarned.CSV")
+yearly_df<-read.csv(data_path4) 
+yearly_df$date<-as.Date(with(yearly_df, paste(Year, 1, 1, sep="-")))
+
+#Figure of PErcent Dry in the Year
+Percent_Dry<- ggplot(data=yearly_df)+
+  geom_rect(data=rects, inherit.aes=FALSE,
+            aes(xmin=start, xmax=end, ymin = min(yearly_df$Percent_Dry),
+                ymax= max(yearly_df$Percent_Dry), group=group), 
+            color="transparent", fill="orange", alpha=0.3)+
+  geom_point(data=yearly_df, aes(x=date, y=Percent_Dry))+
+  geom_line(data=yearly_df, aes(x=date, y=Percent_Dry))+
+  labs(x='Date',
+       y= "% of Year Dry")
+Percent_Dry
+
+
+YearlyPrecip / YearlyPump / Percent_Dry
+
+ggsave(file.path('plots', "YearlyRiverPumpRain.png"),
+       width = 8, height = 6, units = "in")

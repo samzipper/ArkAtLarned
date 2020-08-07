@@ -61,6 +61,7 @@ df_meteo_yr <-
   dplyr::ungroup()
 df_meteo_yr$date <- paste(df_meteo_yr$year, "1", "1", sep="-") %>% ymd() %>% as.Date()
 
+readr::write_csv(df_meteo_yr, file.path("data", "AnnualWeather.CSV"))
 
 ## annual extremes
 df_meteo_yr_extreme <-
@@ -147,9 +148,9 @@ ggplot(df_meteo_mo, aes(x = year, y = tmin_c_mean)) +
   stat_smooth(method = "lm")
 
 # annual trends
-ggplot(df_meteo_yr, aes(x = year, y = prcp_mm)) +
-  geom_point() +
-  stat_smooth(method = "lm")
+YearlyPrecip<-ggplot(df_meteo_yr, aes(x = year, y = prcp_mm)) +
+  geom_line() +
+  geom_point()
 
 ggplot(df_meteo_yr, aes(x = year, y = tmax_c)) +
   geom_point() +
