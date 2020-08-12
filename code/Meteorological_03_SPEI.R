@@ -37,9 +37,9 @@ spei_inputs<-ggplot(data=df_meteo_mo,)+
   geom_line(aes(x=date, y=PET, colour="PET"))+
   geom_line(aes(x=date, y = prcp_mm_sum, colour="Precipitation"))+
   geom_line(aes(x=date, y = CWBAL, colour="Water Balance"))+
-   labs(title="SPEI Inputs",
-       y="Water Amount (mm)",
-       x='Date',
+  geom_hline(yintercept = 0, color = "gray65")+
+   labs(y="Water Amount (mm)",
+       x= NULL,
        colour="Legend")+
   theme(plot.title = element_text(hjust = 0.5))
 
@@ -78,7 +78,8 @@ SPEI3<-ggplot(DF3) +
            show.legend = F, stat = "identity") +
   scale_color_manual(values = c("pos" = "darkblue", "neg" = "red")) +
   scale_fill_manual(values = c("pos"  = "darkblue", "neg" = "red")) +
-  ylab("SPEI") + ggtitle("3-Month SPEI") +
+  ylab("3-month SPEI") +
+  xlab(NULL)+
   theme(plot.title = element_text(hjust = 0.5))+ 
   lims(x=c(as.Date("1998-10-01"), as.Date("2019-12-31")))
 
@@ -142,7 +143,8 @@ SPEI12<-ggplot(DF12[-3,]) +
            show.legend = F, stat = "identity") +
   scale_color_manual(values = c("pos" = "darkblue", "neg" = "red")) +
   scale_fill_manual(values = c("pos"  = "darkblue", "neg" = "red")) +
-  ylab("SPEI") + ggtitle("12-Month SPEI") +
+  ylab("12-month SPEI") +
+  xlab(NULL)+
   theme(plot.title = element_text(hjust = 0.5))+
   xlim(as.Date("1998-10-01"), as.Date("2019-12-01"))
 
@@ -155,10 +157,11 @@ Arkflow_monthly<- ggplot(data=monthly_Ark) +
                 ymax=max(log10(monthly_Ark$Q_cms_sum)), group=group), 
             color="transparent", fill="orange", alpha=0.3)+
   labs(x = "Date",
-       y = "Log10 Monthly Discharge (cms)")
+       y = "Log10 Monthly\nDischarge (cms)")
 
-CombinedSPEI<-spei_inputs / SPEI3 / SPEI6 / Arkflow_monthly
+CombinedSPEI <- spei_inputs / SPEI3 / SPEI12 / Arkflow_monthly
 
 CombinedSPEI
+
 ggsave(file.path('plots', "CombinedSPEI.PNG"),
        width = 8, height = 6, units = "in")
