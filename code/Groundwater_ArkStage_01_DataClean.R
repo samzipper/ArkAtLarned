@@ -99,7 +99,10 @@ Ark_System$Stage_Elev_m<-Ark_System$Stage_Elev * 0.3048
 Ark_System$HPA_Elevation_m<-Ark_System$HPA_Elevation *0.3048
 Ark_System$Alluvial_Elev_m<-Ark_System$Alluvial_Elev * 0.3048
 
-######Added plotting because Dataset woul not sacve correctly
+Ark_System$Year<-lubridate::year(Ark_System$Date)
+Ark_System$date_ymd<-lubridate::date(Ark_System$Date)
+
+######Added plotting because Dataset would not save correctly
 Timeseries<-ggplot(data=Ark_System)+
   geom_point(aes(x=Date, y=Stage_Elev_m, colour = "Arkansas River Stage"))+
   geom_point(aes(x=Date, y=Alluvial_Elev_m, colour = "Alluvial Aquifer Head"))+
