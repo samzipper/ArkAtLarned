@@ -123,6 +123,7 @@ Ark_System$Alluvial_Elev_m<-Ark_System$Alluvial_Elev * 0.3048
 Ark_System$Year<-lubridate::year(Ark_System$Date)
 Ark_System$date_ymd<-lubridate::date(Ark_System$Date)
 
+
 ######Added plotting because Dataset would not save correctly
 Timeseries<-ggplot(data=Ark_System)+
   geom_point(aes(x=Date, y=Stage_Elev_m, colour = "Arkansas River Stage"))+
@@ -134,12 +135,35 @@ Timeseries<-ggplot(data=Ark_System)+
                 ymax=max(Ark_System$Stage_Elev_m), group=group), 
             color="transparent", fill="orange", alpha=0.3)+
   labs(colour = "Unit",
-       title = "Historical Water Levels")
+       title = "Historical Water Levels")+
+  geom_hline(yintercept = 593.2385, color = "gray36", size = 1)
   
 
 Timeseries
-ggsave(file.path('plots', "TimeSeries.PNG"),
+ggsave(file.path('plots', "TimeSeries_B.PNG"),
        width = 10, height = 6, units = "in")
 
 readr::write_csv(Ark_System, file.path("data", "Ark_and_Aquifer_TimeSeries.CSV"))
 
+
+##Plotting the Timeseries without the Dry river values.  
+##Streamebd elevattion determined by rating curve discharge = 0
+Ark_System <- Ark_System %>% mutate(Stage_Elev_m = replace(Stage_Elev_m, 
+                                                           Stage_Elev_m <= 593.24, NA))
+
+Timeseriesc<-ggplot(data=Ark_System)+
+  geom_point(aes(x=Date, y=Stage_Elev_m, colour = "Arkansas River Stage"))+
+  geom_point(aes(x=Date, y=Alluvial_Elev_m, colour = "Alluvial Aquifer Head"))+
+  geom_point(aes(x=Date, y=HPA_Elevation_m, colour = "HPA Head"))+
+  ylab("Elevation (m)")+
+  geom_rect(data=rects, inherit.aes=FALSE,
+            aes(xmin=start, xmax=end, ymin=min(Ark_System$HPA_Elevation_m),
+                ymax=max(Ark_System$Stage_Elev_m), group=group), 
+            color="transparent", fill="orange", alpha=0.3)+
+  labs(colour = "Unit",
+       title = "Historical Water Levels")+
+  geom_hline(yintercept = 593.2385, color = "gray36", size = 1)
+
+Timeseriesc
+ggsave(file.path('plots', "TimeSeries_C.PNG"),
+       width = 10, height = 6, units = "in")
