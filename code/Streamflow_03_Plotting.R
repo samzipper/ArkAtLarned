@@ -47,14 +47,9 @@ rects <- data.frame(start=dryPeriods$date_start, end=dryPeriods$date_end, group=
             color="transparent", fill="orange", alpha=0.3)+
   labs(x = "Date",
        y = "Log10 Discharge (cms)")
+  #scale_x_continuous(limits=c(1998-01-01, 2020-01-01))
+
   
-
-ggsave(file.path('plots', "Hydrograph.PNG"),
-       width = 8, height = 4, units = "in")
-
-
-
-########### FIGURE 3 ################
 
 
 dryPeriods <-readr::read_csv(data_path2a, col_types = cols())
@@ -64,29 +59,41 @@ dryPeriods %>%
 data_path2<- file.path("data", "YearlySummary_ArkLarned.CSV")
 yearly_df<-read.csv(data_path2) 
 
-#Figure 3a
-Fig3a<- ggplot(data=yearly_df)+
+#Percent of Year Dry Timeseires
+PercentDryTS<- ggplot(data=yearly_df)+
   geom_point(aes(x=Year, y=Percent_Dry))+
   geom_line(aes(x=Year, y=Percent_Dry))+
-  ylab('% of Year Dry')
+  ylab('% of Year Dry')+
+  scale_x_continuous(limits=c(1998.5, 2020))
 
+
+#Fig2
+Fig2Full<- hydrograph / PercentDryTS
+Fig2Full + plot_annotation(tag_levels = 'a',
+  title = "Flow in the Arkansas River")&
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(file.path('plots', "Hydrograph.PNG"),
+       width = 8, height = 5, units = "in")
 
 ##Figure 3b
-Fig3b<-ggplot(data=dryPeriods)+
+DryPeriodDuration<-ggplot(data=dryPeriods)+
   geom_bar(aes(x=box_len))+
   xlab('Dry Period Duration')+
   scale_x_discrete(labels=c("0-1 Month", "1-6 Months", "6-12 Months", ">1 Year"))+
-  ylab('Number of Occurrences')
+  ylab('Number of Occurrences')+
+  scale_y_continuous(name = "Number of Occurrences", breaks = seq(0, 8, 2))
 
 ##Figure 3c
-Fig3c<-ggplot(dryPeriods)+
+DOYDryStart<-ggplot(dryPeriods)+
   geom_boxplot(aes(x= box_len, y=DOY_start))+
-  xlab('Dry Period Durarion')+
+  xlab('Dry Period Duration')+
   scale_x_discrete(labels=c("0-1 Month", "1-6 Months", "6-12 Months", ">1 Year"))+
-  ylab('Day of Year Dry Period Starts')
+  ylab('Day of Year Dry Period Starts')+
+  scale_y_continuous(name = "Number of Occurrences", breaks = seq(0, 8, 2))
 
 ##Figure 3 - Plotting
-Fig3Full<-(Fig3a)/(Fig3b | Fig3c) 
+Fig3Full<- DryPeriodDuration / DOYDryStart
 Fig3Full + plot_annotation( tag_levels = 'a',
   title = "Discrete Dry Periods of the Arkansas River 1998-2019")&
   theme(plot.title = element_text(hjust = 0.5))
@@ -98,18 +105,23 @@ ggsave(file.path('plots', "Discrete_DryPeriods.png"),
 ############ FIGURE 4 #############
 data_path3<-file.path('data', 'ArkLarned_DryPeriods.CSV')
 df_dryperiods<-read.csv(data_path3)
+df_dryperiods$start_order<-factor(df_dryperiods$season_start,levels = c("Winter", "Spring", "Summer", "Fall"))
+df_dryperiods$end_order<-factor(df_dryperiods$season_end,levels = c("Winter", "Spring", "Summer", "Fall"))
+
 
 ##Season that Dry Period Starts Bar Graph
-Fig4a<-ggplot(data=df_dryperiods, aes(x=season_start))+
+Fig4a<-ggplot(data=df_dryperiods, aes(x=start_order))+
   geom_bar()+
   ylab("Number of Occurrences")+
-  xlab('Season Dry Period Started')
+  xlab('Season Dry Period Started')+
+  scale_y_continuous(name = "Number of Occurrences", breaks = seq(0, 8, 2))
 
 ##Season that Dry Period Ends Bar Graph
-Fig4b<-ggplot(data = df_dryperiods, aes(x=season_end))+
+Fig4b<-ggplot(data = df_dryperiods, aes(x=end_order))+
   geom_bar()+
   ylab("Number of Occurrences")+
-  xlab('Season Dry Period Ended')
+  xlab('Season Dry Period Ended')+
+  scale_y_continuous(name = "Number of Occurrences", breaks = seq(0, 8, 2))
 
 #Full Fig 4
 Fig4 <- Fig4a + Fig4b
@@ -121,34 +133,50 @@ ggsave(file.path('plots', "Seasons_of_DryPeriods.png"),
        width = 8, height = 4, units = "in")
 
 
-########Figure 6 Baseflow Index #########
+########Figure 5 Baseflow Index #########
 
 #Plot percentage of Baseflow over Time
 year_df$year<-as.factor(year_df$year)
 
-#6A Annual Baseflow Index boxplot per year
+# Annual Baseflow Index boxplot per year
 AnnualBaseflow<- year_df %>%
   dplyr::group_by(year) %>%
   summarise(Baseflow= mean(percentbase))
 AnnualBaseflow$Baseflow[is.na(AnnualBaseflow$Baseflow)]<-0
 
-Fig6A<-ggplot(data=year_df, aes(x=year, y=percentbase))+
+Yearly_BFI<-ggplot(data=year_df, aes(x=year, y=percentbase))+
   geom_boxplot()+
   stat_summary(fun=mean, geom="point", shape=15,color=col.cat.blu)+
-  xlab('Year')+
-  ylab('Baseflow Index')
+  xlab(NULL)+
+  ylab('Baseflow Index')+
+  theme(axis.text.x = element_text(angle = 45, hjust=1))
 
-##6b Monthly Baseflow Index 
+##Monthly Baseflow Index 
 Ark_df%>%
   dplyr::group_by(month)
-Fig6b<-ggplot(data=Ark_df, aes(x=month, y=bt, group=month))+
+Monthly_BFI<-ggplot(data=Ark_df, aes(x=month, y=percentbase, group=month))+
   geom_boxplot()+
   stat_summary(fun=mean, geom="point", shape=15,color=col.cat.blu)+
-  xlab('Month')+
+  xlab(NULL)+
   ylab('Baseflow Index')+
-  scale_x_discrete('month')
+  scale_x_discrete(limits = c('Jan', 'Feb', 'Mar', "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"))
 
-Fig6A / Fig6b
+#Add in Meteorological data
+datapath4<-file.path('data', 'LArned_Meteo_Month.CSV')
+df_meteo_mo<-read.csv(datapath4)
+
+df_meteo_mo%>%
+  dplyr::group_by(month)
+Monthly_Rainfall<-ggplot(data=df_meteo_mo, aes(x=month, y=prcp_mm_sum, group=month))+
+  geom_boxplot()+
+  stat_summary(fun=mean, geom="point", shape=15,color=col.cat.blu)+
+  xlab(NULL)+
+  ylab('Monthly\n Precipitation (mm)')+
+  scale_x_discrete(limits = c('Jan', 'Feb', 'Mar', "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"))
+
+
+Fig5<-Yearly_BFI/Monthly_BFI / Monthly_Rainfall
+Fig5+ plot_annotation( tag_levels = 'a')
 
 ggsave(file.path('plots', "MonthlyBaseflowIndex.PNG"),
        width = 8, height = 4, units = "in")

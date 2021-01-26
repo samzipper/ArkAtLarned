@@ -53,7 +53,7 @@ CutDischarge_df<-Discharge_df[3289:4840,]
 CombinedStageDischarge<-left_join(CutDischarge_df, ArkStageDay)
 RC_model<-lm(mean_height~I(sqrt(discharge_cms)), data=CombinedStageDischarge)
 
-RC_model$coefficients[1]
+
 
 summary(RC_model)
 predicted_df <- data.frame(height = predict(RC_model, CombinedStageDischarge),
@@ -70,7 +70,28 @@ RatingCurve<-ggplot(data=CombinedStageDischarge, aes(x = discharge_cms, y=mean_h
 
 
 RatingCurve  
+###Rating Curve with height in meters
 
+CombinedStageDischarge2<-left_join(CutDischarge_df, ArkStageDay)
+CombinedStageDischarge2$mean_height_m<-CombinedStageDischarge2$mean_height*0.3048
+RC_model_m<-lm(mean_height_m~I(sqrt(discharge_cms)), data=CombinedStageDischarge2)
+
+
+summary(RC_model_m)
+predicted_df2 <- data.frame(height = predict(RC_model_m, CombinedStageDischarge2),
+                           discharge_cms=CombinedStageDischarge$discharge_cms)
+
+RatingCurve<-ggplot(data=CombinedStageDischarge2, aes(x = discharge_cms, y=mean_height_m))+
+  geom_point()+
+  geom_line(color='red',data = predicted_df, aes(x=discharge_cms, y=height))+
+  ylab("Mean Daily Stage Elevation (m)")+
+  xlab("Discharge (cms)")+
+  labs(title="Ark at Larned Rating Curve")
+
+
+RatingCurve  
+ggsave(file.path('plots', "RatingCurve.png"),
+       width = 8, height = 4, units = "in")
 
 ######Apply Rating Curve for Missing ArK Data
 
@@ -116,28 +137,9 @@ Timeseries<-ggplot(data=Ark_System)+
        title = "Historical Water Levels")
   
 
-
-##Create Datasets with Ark Stage and HPA having no NA values
-ArkSystem_Stage_HPA_noNA<-Ark_System%>% 
-  drop_na(Stage_Elev_m)%>%
-  drop_na(HPA_Elevation_m)
-readr::write_csv(ArkSystem_Stage_HPA_noNA, file.path("data", "Ark_and_HPATimeSeries.CSV"))
-
-#Create Dataset for Alluvial Aquifer and HPA with no NA values
-ArkSystem_Alluvial_HPA_noNA<-Ark_System%>% 
-  drop_na(Alluvial_Elev_m)%>%
-  drop_na(HPA_Elevation_m)
-readr::write_csv(ArkSystem_Alluvial_HPA_noNA, file.path("data", "Alluvial_and_HPATimeSeries.CSV"))
-
-#Create Dataset for Ark Stage and Alluvial Aquifer with no NA values
-ArkSystem_Ark_Alluvial_noNA<-Ark_System%>% 
-  drop_na(Stage_Elev_m)%>%
-  drop_na(Alluvial_Elev_m)
-readr::write_csv(ArkSystem_Ark_Alluvial_noNA, file.path("data", "Ark_and_Alluvial_TimeSeries.CSV"))
-
-
-readr::write_csv(Ark_System, file.path("data", "Ark_and_Aquifer_TimeSeries.CSV"))
-
 Timeseries
 ggsave(file.path('plots', "TimeSeries.PNG"),
        width = 10, height = 6, units = "in")
+
+readr::write_csv(Ark_System, file.path("data", "Ark_and_Aquifer_TimeSeries.CSV"))
+
