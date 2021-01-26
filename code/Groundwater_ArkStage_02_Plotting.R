@@ -40,14 +40,15 @@ ArkAlluvTime
 ####Compare Ark Stage and HPA level
 Ark_HPA<-readr::read_csv(Ark_HPA_Path, col_types = cols())
 
+
+
 newArkHPA<-Ark_HPA[Ark_HPA$Stage_Elev_m > 593.24,]
 newArkHPA$Diff_Riv_HPA<-newArkHPA$Stage_Elev_m - newArkHPA$HPA_Elevation_m
 
 DoubleMass_Ark_HPA<-ggplot(data=newArkHPA, 
-                           aes(x=Stage_Elev_m, y=HPA_Elevation_m, color = Date))+
-  geom_point(aes(colour = Date))+
-  theme(legend.position="none")+
-  scale_color_viridis_c(guide = guide_colorbar(title = 'Date'))+
+                           aes(x=Stage_Elev_m, y=HPA_Elevation_m, color = date_ymd))+
+  geom_point()+
+  scale_color_viridis_c(trans = 'date',  guide = guide_colorbar(title = 'Date'))+
   scale_x_continuous(position = "top")+
   labs(x = "", 
        y = "HPA Head")
@@ -99,7 +100,7 @@ ggpubr::ggarrange(DoubleMass_Ark_Alluv, DoubleMass_Alluv_HPA, DoubleMass_Ark_HPA
                   labels = c("A", "B", "C"),
                   ncol = 2, nrow = 2)
 
-ggsave(file.path('plots', "DoubleMassCurves.png"),
+ggsave(file.path('plots', "DoubleMassCurves2.png"),
        width = 8, height = 4, units = "in")
 
 
