@@ -9,6 +9,10 @@ library(lubridate)
 library(heatwaveR)
 library(patchwork)
 
+# path to GHFILES Larned directory
+dir_ghfiles <- "Z:/Common/Larned Research Site"
+
+
 ## color palettes
 # categorical color palette from https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/
 col.cat.grn <- "#3cb44b"   # green
