@@ -4,6 +4,8 @@ source(file.path("code", "paths+packages.R"))
 data_path<-file.path("data", "WIMAS_AnnualSummary_Larned.CSV")
 WIMAS_summary<-readr::read_csv(data_path, col_types = cols())
 
+WIMAS_summary<-WIMAS_summary[-1,]
+
 
 #Load in Dry Periods
 data_path3<- file.path("data", "ArkLarned_DryPeriods.CSV")
@@ -26,7 +28,7 @@ YearlyPump<-ggplot(data=WIMAS_summary)+
             color="transparent", fill="orange", alpha=0.3)+
   geom_line(aes(x=date, y=SumWater_m3))+
   geom_point(aes(x=date, y=SumWater_m3))+
-  xlim(as.Date("1998-01-01"),as.Date("2019-1-1"))+
+  xlim(as.Date("1999-01-01"),as.Date("2019-1-1"))+
   labs(y="Water Extracted (m3)",
        x=NULL)
   
@@ -35,6 +37,7 @@ YearlyPump
 ###Annual Meteorologic Trends
 data_path4<- file.path("data", "AnnualWeather.CSV")
 AnnualWeather<-readr::read_csv(data_path4, col_types = cols())
+AnnualWeather<-AnnualWeather[-1,]
 
 YearlyPrecip<-ggplot(AnnualWeather, aes(x = date, y = prcp_mm)) +
   geom_rect(data=rects, inherit.aes=FALSE,
@@ -62,6 +65,7 @@ summary(eq)
 data_path5<- file.path("data", "YearlySummary_ArkLarned.CSV")
 yearly_df<-read.csv(data_path5) 
 yearly_df$date<-as.Date(with(yearly_df, paste(Year, 1, 1, sep="-")))
+yearly_df<-yearly_df[-1,]
 
 #Figure of PErcent Dry in the Year
 Percent_Dry<- ggplot(data=yearly_df)+
@@ -93,7 +97,7 @@ precip_v_pump<- ggplot(data=YearlySummary, aes(x=SumWater_m3, y = prcp_mm)) +
   labs(y=" \n ",
        x = "Yearly Pumping (m3)")+
   geom_smooth(method = "lm", se=FALSE)+
-  geom_text(y=225, x = 32000000, label="R2 = 0.174", colour = 'red')
+  geom_text(y=900, x = 22000000, label="R2 = 0.34", colour = 'red')
 
 precip_v_pump
 
@@ -106,7 +110,7 @@ pump_v_dry<- ggplot(data=YearlySummary, aes(x=Percent_Dry, y = SumWater_m3)) +
   labs(y="Yearly Pumping (m3)",
        x = "% Year Dry")+
   geom_smooth(method = "lm", se=FALSE)+
-  geom_text(x=80, y = 20500000, label="R2 = 0.026", colour = 'red')
+  geom_text(x=15, y = 35000000, label="R2 = 0.021", colour = 'red')
 pump_v_dry
 
 
@@ -119,7 +123,7 @@ precip_v_dry<- ggplot(data=YearlySummary, aes(x=Percent_Dry, y = prcp_mm)) +
   labs(y="Yearly \nPrecipitation (mm)\n",
        x = NULL)+
   geom_smooth(method = "lm", se=FALSE)+
-  geom_text(x=80, y = 225, label="R2 = 0.020", colour = 'red')
+  geom_text(x=15, y = 900, label="R2 = 0.0002", colour = 'red')
 
 precip_v_dry
 
@@ -129,4 +133,4 @@ ggpubr::ggarrange(precip_v_dry, precip_v_pump, pump_v_dry,
 
 
 ggsave(file.path('plots', "PumpPrecipDryCorrelate.png"),
-       width = 4, height = 2, units = "in")
+       width = 4, height = 4, units = "in")
