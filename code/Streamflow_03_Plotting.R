@@ -89,17 +89,17 @@ DOYDryStart<-ggplot(dryPeriods)+
   geom_boxplot(aes(x= box_len, y=DOY_start))+
   xlab('Dry Period Duration')+
   scale_x_discrete(labels=c("0-1 Month", "1-6 Months", "6-12 Months", ">1 Year"))+
-  ylab('Day of Year Dry Period Starts')+
+  ylab('Day of Year Dry Period Starts')
   scale_y_continuous(name = "Number of Occurrences", breaks = seq(0, 8, 2))
 
 ##Figure 3 - Plotting
-Fig3Full<- DryPeriodDuration / DOYDryStart
+Fig3Full<- DryPeriodDuration + DOYDryStart
 Fig3Full + plot_annotation( tag_levels = 'a',
   title = "Discrete Dry Periods of the Arkansas River 1998-2019")&
   theme(plot.title = element_text(hjust = 0.5))
 
 ggsave(file.path('plots', "Discrete_DryPeriods.png"),
-       width = 8, height = 8, units = "in")
+       width = 8, height = 4, units = "in")
   
 
 ############ FIGURE 4 #############
