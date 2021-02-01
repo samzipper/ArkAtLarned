@@ -46,12 +46,14 @@ newArkHPA<-Ark_HPA[Ark_HPA$Stage_Elev_m > 593.24,]
 newArkHPA$Diff_Riv_HPA<-newArkHPA$Stage_Elev_m - newArkHPA$HPA_Elevation_m
 
 DoubleMass_Ark_HPA<-ggplot(data=newArkHPA, 
-                           aes(x=Stage_Elev_m, y=HPA_Elevation_m, color = date_ymd))+
-  geom_point()+
-  scale_color_viridis_c(trans = 'date',  guide = guide_colorbar(title = 'Date'))+
+                           aes(x=Stage_Elev_m, y=HPA_Elevation_m))+
+  geom_point(aes(colour=Date))+
+  scale_color_viridis_c()+
+  theme(legend.position="none")+
   scale_x_continuous(position = "top")+
   labs(x = "", 
        y = "HPA Head")
+
 
 ArkHPATime<-ggplot(data=newArkHPA)+
   geom_point(aes(x=Date, y = HPA_Elevation_m, colour = "HPA"))+
@@ -100,46 +102,46 @@ ggpubr::ggarrange(DoubleMass_Ark_Alluv, DoubleMass_Alluv_HPA, DoubleMass_Ark_HPA
                   labels = c("A", "B", "C"),
                   ncol = 2, nrow = 2)
 
-ggsave(file.path('plots', "DoubleMassCurves2.png"),
+ggsave(file.path('plots', "DoubleMassCurves.png"),
        width = 8, height = 4, units = "in")
 
 
 ####Old Double MAss Curves
-mid<-mean.POSIXct(Ark_System$Date)
+#mid<-mean.POSIXct(Ark_System$Date)
 
-HP_Alluv<-ggplot(data=Ark_System, aes(x=HPA_Elevation_m, y=Alluvial_Elev_m, color = date_ymd))+
-  geom_point()+
-  scale_color_viridis_c(trans = 'date',  
-                        guide = guide_colorbar(title = 'Date'))+
-  labs(x = "Ark Stage", 
-       y = "High Plains aq\n Head")
+#HP_Alluv<-ggplot(data=Ark_System, aes(x=HPA_Elevation_m, y=Alluvial_Elev_m, color = date_ymd))+
+ # geom_point()+
+  #scale_color_viridis_c(trans = 'date',  
+   #                     guide = guide_colorbar(title = 'Date'))+
+  #labs(x = "Ark Stage", 
+   #    y = "High Plains aq\n Head")
  
 
-Ark_Alluv<-ggplot(data=Ark_System, aes(x=Stage_Elev_m, y=Alluvial_Elev_m))+
-  geom_point(aes(colour = Date))+
-  theme(legend.position="none")+
-  scale_color_viridis_c()+
-  scale_x_continuous(position = "top")+
-  labs(x = "Ark Stage", 
-       y = "Alluvial aq Head")
+#Ark_Alluv<-ggplot(data=Ark_System, aes(x=Stage_Elev_m, y=Alluvial_Elev_m))+
+ # geom_point(aes(colour = Date))+
+  #theme(legend.position="none")+
+  #scale_color_viridis_c()+
+  #scale_x_continuous(position = "top")+
+  #labs(x = "Ark Stage", 
+   #    y = "Alluvial aq Head")
 
 
-Ark_HP<-ggplot(data=Ark_System, aes(x=Stage_Elev_m, y=HPA_Elevation_m, color = Date))+
-  geom_point()+
-  theme(legend.position="none")+
-  scale_color_viridis_c()+
-  scale_x_continuous(position = "top")+
-  labs(x = 'High Plains aq Head',
-       y = 'Alluvial aq Head')
+#Ark_HP<-ggplot(data=Ark_System, aes(x=Stage_Elev_m, y=HPA_Elevation_m, color = Date))+
+ # geom_point()+
+  #theme(legend.position="none")+
+  #scale_color_viridis_c()+
+  #scale_x_continuous(position = "top")+
+  #labs(x = 'High Plains aq Head',
+  #     y = 'Alluvial aq Head')
 
-ggpubr::ggarrange(Ark_Alluv, Ark_HP, HP_Alluv, 
-          labels = c("A", "B", "C"),
-          ncol = 2, nrow = 2)
+#ggpubr::ggarrange(Ark_Alluv, Ark_HP, HP_Alluv, 
+ #         labels = c("A", "B", "C"),
+  #        ncol = 2, nrow = 2)
 
 
 
-ggsave(file.path('plots', "WaterLevels.png"),
-       width = 8, height = 4, units = "in")
+#ggsave(file.path('plots', "WaterLevels.png"),
+ #      width = 8, height = 4, units = "in")
 
   
   
