@@ -35,7 +35,10 @@ Ark_alluv_diffPlot<-ggplot(data=newArkAlluv)+
 
 Ark_alluv_diffPlot
 ArkAlluvTime
-  
+
+##Interactive Poltly plots for investigation of the hysteresis 
+#PlotlyArk_Alluv<-plot_ly(data=newArkAlluv, x=~Stage_Elev_m, y=~Alluvial_Elev_m)
+#PlotlyArk_Alluv
 
 ####Compare Ark Stage and HPA level
 Ark_HPA<-readr::read_csv(Ark_HPA_Path, col_types = cols())
@@ -54,6 +57,10 @@ DoubleMass_Ark_HPA<-ggplot(data=newArkHPA,
   labs(x = "", 
        y = "HPA Head")
 
+
+####Interactive Poltly Plot to examine Loop direction
+#PlotlyArk_HPA<-plot_ly(data=newArkHPA, x=~Stage_Elev_m, y=~HPA_Elevation_m)
+#PlotlyArk_HPA
 
 ArkHPATime<-ggplot(data=newArkHPA)+
   geom_point(aes(x=Date, y = HPA_Elevation_m, colour = "HPA"))+

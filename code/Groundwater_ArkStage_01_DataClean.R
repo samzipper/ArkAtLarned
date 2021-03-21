@@ -9,7 +9,7 @@ dryPeriods<- readr::read_csv(data_path3, col_types = cols())
 rects <- data.frame(start=dryPeriods$date_start, end=dryPeriods$date_end, group=seq_along(start))
 rects$start<-as.POSIXct.Date(rects$start)
 rects$end<-as.POSIXct.Date(rects$end)
-
+rects$group<-(1:21)
 
 Alluvial_df<-readxl::read_excel(path = data_path1,sheet= "LEC1", ) %>%
   dplyr::select('Time & Date', "Elevation")%>%
@@ -83,10 +83,12 @@ predicted_df2 <- data.frame(height = predict(RC_model_m, CombinedStageDischarge2
 
 RatingCurve<-ggplot(data=CombinedStageDischarge2, aes(x = discharge_cms, y=mean_height_m))+
   geom_point()+
-  geom_line(color='red',data = predicted_df, aes(x=discharge_cms, y=height))+
+  geom_line(color='red',data = predicted_df2, aes(x=discharge_cms, y=height))+
   ylab("Mean Daily Stage Elevation (m)")+
   xlab("Discharge (cms)")+
-  labs(title="Ark at Larned Rating Curve")
+  labs(title="Ark at Larned Rating Curve")+
+  annotate("text", x = 60, y =595,
+           label = "paste(italic(R) ^ 2, \" = .92\")", parse = TRUE)
 
 
 RatingCurve  
@@ -151,18 +153,20 @@ readr::write_csv(Ark_System, file.path("data", "Ark_and_Aquifer_TimeSeries.CSV")
 Ark_System <- Ark_System %>% mutate(Stage_Elev_m = replace(Stage_Elev_m, 
                                                            Stage_Elev_m <= 593.24, NA))
 
-Timeseriesc<-ggplot(data=Ark_System)+
-  geom_point(aes(x=Date, y=Stage_Elev_m, colour = "Arkansas River Stage"))+
-  geom_point(aes(x=Date, y=Alluvial_Elev_m, colour = "Alluvial Aquifer Head"))+
-  geom_point(aes(x=Date, y=HPA_Elevation_m, colour = "HPA Head"))+
-  ylab("Elevation (m)")+
+colors<-c("Arkansas River" = "#0082c8", "Alluvial Aquifer" = "#f58231", "High Plains Aquifer" = "#e6194b")
+
+Timeseriesc<-ggplot(data=Ark_System, aes(x=Date))+
+  geom_point(aes(y=Stage_Elev_m, colour="Arkansas River"))+
+  geom_point(aes(x=Date, y=Alluvial_Elev_m, colour ="Alluvial Aquifer"))+
+  geom_point(aes(x=Date, y=HPA_Elevation_m, colour = "High Plains Aquifer"))+
   geom_rect(data=rects, inherit.aes=FALSE,
-            aes(xmin=start, xmax=end, ymin=min(Ark_System$HPA_Elevation_m),
-                ymax=max(Ark_System$Stage_Elev_m), group=group), 
+            aes(xmin=start, xmax=end, ymin=-Inf,
+                ymax=+Inf, group=group), 
             color="transparent", fill="orange", alpha=0.3)+
-  labs(colour = "Unit",
-       title = "Historical Water Levels")+
-  geom_hline(yintercept = 593.2385, color = "gray36", size = 1)
+  labs(colour = "Unit", title = "Historical Water Levels")+
+  geom_hline(yintercept = 593.2385, color = "gray36", size = 1)+
+  ylab("Elevation (m)")+
+  theme(legend.position = "bottom")
 
 Timeseriesc
 ggsave(file.path('plots', "TimeSeries_C.PNG"),
