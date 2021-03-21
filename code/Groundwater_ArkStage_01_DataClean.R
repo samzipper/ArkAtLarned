@@ -153,19 +153,22 @@ readr::write_csv(Ark_System, file.path("data", "Ark_and_Aquifer_TimeSeries.CSV")
 Ark_System <- Ark_System %>% mutate(Stage_Elev_m = replace(Stage_Elev_m, 
                                                            Stage_Elev_m <= 593.24, NA))
 
-colors<-c("Arkansas River" = "#0082c8", "Alluvial Aquifer" = "#f58231", "High Plains Aquifer" = "#e6194b")
+
 
 Timeseriesc<-ggplot(data=Ark_System, aes(x=Date))+
-  geom_point(aes(y=Stage_Elev_m, colour="Arkansas River"))+
-  geom_point(aes(x=Date, y=Alluvial_Elev_m, colour ="Alluvial Aquifer"))+
-  geom_point(aes(x=Date, y=HPA_Elevation_m, colour = "High Plains Aquifer"))+
   geom_rect(data=rects, inherit.aes=FALSE,
             aes(xmin=start, xmax=end, ymin=-Inf,
                 ymax=+Inf, group=group), 
             color="transparent", fill="orange", alpha=0.3)+
-  labs(colour = "Unit", title = "Historical Water Levels")+
+  geom_point(aes(y=Stage_Elev_m, colour="a"))+
+  geom_point(aes(y=Alluvial_Elev_m, colour ="b"))+
+  geom_point(aes(y=HPA_Elevation_m, colour = "c"))+
+  labs(title = "Historical Water Levels")+
   geom_hline(yintercept = 593.2385, color = "gray36", size = 1)+
   ylab("Elevation (m)")+
+  scale_color_manual(name = "Unit",
+                     values = c("a" = "#0082c8", "b" = "#f58231", "c" = "#e6194b"),
+                     labels = c("Arkansas River", "Alluvial Aquifer", "High Plains Aquifer"))+
   theme(legend.position = "bottom")
 
 Timeseriesc
