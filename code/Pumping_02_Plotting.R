@@ -80,9 +80,10 @@ Percent_Dry<- ggplot(data=yearly_df)+
 Percent_Dry
 
 
-YearlyPrecip / YearlyPump / Percent_Dry
+YearlyPrecip / YearlyPump / Percent_Dry + plot_annotation(tag_levels = 'A')
 
-ggsave(file.path('plots', "YearlyRiverPumpRain.png"),
+
+ggsave(file.path('plots', "YearlyRiverPumpRain2.png"),
        width = 8, height = 6, units = "in")
 
 ###Compare pumping, precip, and %dry
@@ -97,7 +98,7 @@ precip_v_pump<- ggplot(data=YearlySummary, aes(x=SumWater_m3, y = prcp_mm)) +
   labs(y=" \n ",
        x = "Yearly Pumping (m3)")+
   geom_smooth(method = "lm", se=FALSE)+
-  geom_text(y=900, x = 22000000, label="R2 = 0.34", colour = 'red')
+  geom_text(y=900, x = 22000000, label="R^2 == 0.34", parse = TRUE, colour = 'red')
 
 precip_v_pump
 
@@ -110,7 +111,7 @@ pump_v_dry<- ggplot(data=YearlySummary, aes(x=Percent_Dry, y = SumWater_m3)) +
   labs(y="Yearly Pumping (m3)",
        x = "% Year Dry")+
   geom_smooth(method = "lm", se=FALSE)+
-  geom_text(x=15, y = 35000000, label="R2 = 0.021", colour = 'red')
+  geom_text(x=15, y = 35000000, label="R^2 == 0.021", parse = TRUE, colour = 'red')
 pump_v_dry
 
 
@@ -123,7 +124,7 @@ precip_v_dry<- ggplot(data=YearlySummary, aes(x=Percent_Dry, y = prcp_mm)) +
   labs(y="Yearly \nPrecipitation (mm)\n",
        x = NULL)+
   geom_smooth(method = "lm", se=FALSE)+
-  geom_text(x=15, y = 900, label="R2 = 0.0002", colour = 'red')
+  geom_text(x=15, y = 900, label="R^2 == 0.0002", parse = TRUE, colour = 'red')
 
 precip_v_dry
 
@@ -131,6 +132,10 @@ ggpubr::ggarrange(precip_v_dry, precip_v_pump, pump_v_dry,
                   labels = c("A", "B", "C"),
                   ncol = 2, nrow = 2)
 
+precip_v_dry + precip_v_pump + pump_v_dry + plot_spacer()+
+  plot_layout(ncol = 2)
+
+
 
 ggsave(file.path('plots', "PumpPrecipDryCorrelate.png"),
-       width = 4, height = 4, units = "in")
+       width = 8, height = 4, units = "in")

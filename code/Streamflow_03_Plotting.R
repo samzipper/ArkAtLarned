@@ -1,6 +1,8 @@
 #Streamflow_03_Plotting.R
 
 source(file.path("code", "paths+packages.R"))
+library(gridExtra)
+library(scales)
 
 #Read in Baseflow DataSet
 data_path<- file.path("data", "ArkLarned_Baseflow.CSV")
@@ -151,6 +153,8 @@ Yearly_BFI<-ggplot(data=year_df, aes(x=year, y=percentbase))+
   ylab('Baseflow Index')+
   theme(axis.text.x = element_text(angle = 45, hjust=1))
 
+
+
 ##Monthly Baseflow Index 
 Ark_df%>%
   dplyr::group_by(month)
@@ -175,7 +179,7 @@ Monthly_Rainfall<-ggplot(data=df_meteo_mo, aes(x=month, y=prcp_mm_sum, group=mon
   scale_x_discrete(limits = c('Jan', 'Feb', 'Mar', "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"))
 
 
-Fig5<-Yearly_BFI/Monthly_BFI / Monthly_Rainfall
+Fig5<-Monthly_BFI / Monthly_Rainfall
 Fig5+ plot_annotation( tag_levels = 'a')
 
 ggsave(file.path('plots', "MonthlyBaseflowIndex.PNG"),
@@ -225,3 +229,59 @@ ggplot(data = yearly_df)+
 
 ggsave(file.path('plots', "CombinePercentDry_Rain.png"),
        width = 8, height = 4, units = "in")
+
+
+##################3
+year_df$year<-as.factor(year_df$year)
+
+
+Annual
+# Annual Baseflow Index boxplot per year
+AnnualBaseflow<- year_df %>%
+  dplyr::group_by(year) %>%
+  summarise(Baseflow= mean(percentbase))
+AnnualBaseflow$Baseflow[is.na(AnnualBaseflow$Baseflow)]<-0
+
+p1<-ggplot(data=year_df, aes(x=year, y=percentbase))+
+  geom_boxplot()+
+  stat_summary(fun=mean, geom="point", shape=15,color=col.cat.blu)+
+  xlab(NULL)+
+  ylab('Baseflow Index')+
+  theme_cowplot(12)+
+  theme(axis.text.x = element_text(angle = 45, hjust=1))
+
+dates<-c("1998-10-01","2019-12-31")
+dates<-as.Date(dates)
+
+ends<-as.data.frame(dates)
+ends$values<-c(0,0)
+
+p2<-ggplot()+
+  geom_rect(data=rects, inherit.aes=FALSE,
+            aes(xmin=start, xmax=end, ymin=0,
+                ymax=100, group=group), 
+            color="transparent", fill="orange", alpha=0.3)+
+  geom_point(data=ends, aes(x=dates, y=values), color='white')+
+
+  theme(axis.line=element_blank(),axis.text.x=element_blank(),
+          axis.text.y=element_blank(),axis.ticks=element_blank(),
+          axis.title.x=element_blank(),
+          axis.title.y=element_blank(),legend.position="none",
+          panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
+          panel.grid.minor=element_blank(),plot.background=element_blank())
+
+Yearly_BFI
+p2
+ggsave(file.path('plots', "BlankDryPeriods.png"),
+       width = 8, height = 4, units = "in")
+
+
+
+v1<-ggdraw() + 
+  draw_plot(p2, scale=0.96, x=0.066, y=0.028) +
+  draw_plot(p1)
+v1
+test2<-v1/hydrograph
+test2
+Test<-v1/Monthly_BFI / Monthly_Rainfall
+Test

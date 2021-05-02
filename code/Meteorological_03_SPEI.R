@@ -161,7 +161,7 @@ Arkflow_monthly<- ggplot(data=monthly_Ark) +
 
 CombinedSPEI <- spei_inputs / SPEI3 / SPEI12 / Arkflow_monthly
 
-CombinedSPEI
+CombinedSPEI + plot_annotation(tag_levels = 'A')
 
 ggsave(file.path('plots', "CombinedSPEI.PNG"),
        width = 8, height = 6, units = "in")

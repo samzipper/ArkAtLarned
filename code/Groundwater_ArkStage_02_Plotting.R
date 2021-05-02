@@ -16,7 +16,7 @@ newArkAlluv<-Ark_Alluv[Ark_Alluv$Stage_Elev_m > 593.24,]
 newArkAlluv$Diff_Riv_Alluv<-newArkAlluv$Stage_Elev_m - newArkAlluv$Alluvial_Elev_m
 
 DoubleMass_Ark_Alluv<-ggplot(data=newArkAlluv, aes(x=Stage_Elev_m, y=Alluvial_Elev_m))+
-  geom_point(aes(colour = Date))+
+  geom_point(shape=1,aes(colour = Date))+
   theme(legend.position="none")+
   scale_color_viridis_c()+
   scale_x_continuous(position = "top")+
@@ -50,7 +50,7 @@ newArkHPA$Diff_Riv_HPA<-newArkHPA$Stage_Elev_m - newArkHPA$HPA_Elevation_m
 
 DoubleMass_Ark_HPA<-ggplot(data=newArkHPA, 
                            aes(x=Stage_Elev_m, y=HPA_Elevation_m))+
-  geom_point(aes(colour=Date))+
+  geom_point(shape=1, aes(colour=Date))+
   scale_color_viridis_c()+
   theme(legend.position="none")+
   scale_x_continuous(position = "top")+
@@ -82,7 +82,7 @@ Alluv_HPA<-readr::read_csv(Alluv_HPA_Path, col_types = cols())
 Alluv_HPA$Diff_Alluv_HPA<-Alluv_HPA$Alluvial_Elev_m- Alluv_HPA$HPA_Elevation_m
 
 DoubleMass_Alluv_HPA<-ggplot(data=Alluv_HPA, aes(y=Alluvial_Elev_m, x=HPA_Elevation_m))+
-  geom_point(aes(colour = Date))+
+  geom_point(shape = 1,aes(colour = Date))+
   theme(legend.position="none")+
   scale_color_viridis_c()+
   scale_x_continuous(position = "top")+
@@ -109,7 +109,7 @@ ggpubr::ggarrange(DoubleMass_Ark_Alluv, DoubleMass_Alluv_HPA, DoubleMass_Ark_HPA
                   labels = c("A", "B", "C"),
                   ncol = 2, nrow = 2)
 
-ggsave(file.path('plots', "DoubleMassCurves.png"),
+ggsave(file.path('plots', "DoubleMassCurvesB.png"),
        width = 8, height = 4, units = "in")
 
 
