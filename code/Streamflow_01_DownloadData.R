@@ -9,7 +9,7 @@ USGS_id <- "07141220" #The Arkansas River at Larned
 
 ##This has issues in the code.  Not recognizing dplyr 
 ##Download data from USGS Gage
-df_site <- dataRetrieval::readNWISdv(USGS_id, "00060","","") %>%
+df_site <- dataRetrieval::readNWISdv(USGS_id, "00060","","2019-12-31") %>%
   dplyr::select(site_no, Date, X_00060_00003) %>%  
   magrittr::set_colnames(c("gageid", "Date", "discharge_cfs")) %>% 
   dplyr::mutate(discharge_cms = discharge_cfs*(0.3048^3),

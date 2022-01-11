@@ -59,50 +59,51 @@ df_all <-
   dplyr::select(Date, Ark_m3_cum) %>% 
   dplyr::left_join(df_roz[,c("Date", "Roz_m3_cum")], by = "Date") %>% 
   dplyr::left_join(df_bur[,c("Date", "Bur_m3_cum")], by = "Date") %>% 
-  dplyr::mutate(YrSinceStart = seq(1, dim(df_all)[1])/365,
+  dplyr::mutate(YrSinceStart = seq(1, dim(.)[1])/365,
                 year = lubridate::year(Date),
                 DaysSinceReservoir = as.integer(Date - as.Date("2009-09-01")))
 
 ## plot
 p_ArkVsBur <-
-  ggplot(df_all, aes(x = Bur_m3_cum, y = Ark_m3_cum, color = DaysSinceReservoir/365)) +
+  ggplot(df_all, aes(x = Bur_m3_cum/1e6, y = Ark_m3_cum/1e6, color = DaysSinceReservoir/365)) +
   geom_point() +
   stat_smooth(data = subset(df_all, Ark_m3_cum > 5e8),
               aes(linetype = DaysSinceReservoir > 0), method = "lm", color = "black") +
   scale_color_gradient2(name = "Years Since\nHorsethief Completed",
                         low = col.cat.red, mid = col.gray, high = col.cat.blu) +
-  scale_x_continuous(name = "Pawnee @ Burdett\nCumulative Discharge [m\u00b3]") +
-  scale_y_continuous(name = "Arkansas nr Larned\nCumulative Discharge [m\u00b3]") +
+  scale_x_continuous(name = "Pawnee @ Burdett\nCumulative Discharge [million m\u00b3]") +
+  scale_y_continuous(name = "Arkansas nr Larned\nCumulative Discharge [million m\u00b3]") +
   scale_linetype_discrete(name = "Linear\nFit", 
                           labels = c("Before Horsethief", "After Horsethief"))
 
 p_ArkVsRoz <-
-  ggplot(df_all, aes(x = Roz_m3_cum, y = Ark_m3_cum, color = DaysSinceReservoir/365)) +
+  ggplot(df_all, aes(x = Roz_m3_cum/1e6, y = Ark_m3_cum/1e6, color = DaysSinceReservoir/365)) +
   geom_point() +
   stat_smooth(data = subset(df_all, Ark_m3_cum > 5e8),
               aes(linetype = DaysSinceReservoir > 0), method = "lm", color = "black") +
   scale_color_gradient2(name = "Years Since\nHorsethief Completed",
                         low = col.cat.red, mid = col.gray, high = col.cat.blu) +
-  scale_x_continuous(name = "Pawnee @ Rozel\nCumulative Discharge [m\u00b3]") +
-  scale_y_continuous(name = "Arkansas nr Larned\nCumulative Discharge [m\u00b3]") +
+  scale_x_continuous(name = "Pawnee @ Rozel\nCumulative Discharge [million m\u00b3]") +
+  scale_y_continuous(name = "Arkansas nr Larned\nCumulative Discharge [million m\u00b3]") +
   scale_linetype_discrete(name = "Linear\nFit", 
                           labels = c("Before Horsethief", "After Horsethief"))
 
 p_BurVsRoz <-
-  ggplot(df_all, aes(x = Roz_m3_cum, y = Bur_m3_cum, 
+  ggplot(df_all, aes(x = Roz_m3_cum/1e6, y = Bur_m3_cum/1e6, 
                      color = DaysSinceReservoir/365)) +
   geom_point() +
   stat_smooth(aes(linetype = DaysSinceReservoir > 0), method = "lm", color = "black") +
   scale_color_gradient2(name = "Years Since\nHorsethief Completed",
                         low = col.cat.red, mid = col.gray, high = col.cat.blu) +
-  scale_x_continuous(name = "Pawnee @ Rozel\nCumulative Discharge [m\u00b3]") +
-  scale_y_continuous(name = "Pawnee @ Burdett\nCumulative Discharge [m\u00b3]") +
+  scale_x_continuous(name = "Pawnee @ Rozel\nCumulative Discharge [million m\u00b3]") +
+  scale_y_continuous(name = "Pawnee @ Burdett\nCumulative Discharge [million m\u00b3]") +
   scale_linetype_discrete(name = "Linear\nFit", 
                           labels = c("Before Horsethief", "After Horsethief"))
 
 # save
 (p_ArkVsBur + p_ArkVsRoz + p_BurVsRoz + guide_area() +
-  plot_layout(ncol = 2, guides = 'collect')) %>% 
+  plot_layout(ncol = 2, guides = 'collect') +
+    plot_annotation(tag_levels = "A")) %>% 
   ggsave(file.path("plots", "Streamflow_DoubleMassCurve.png"),
          plot = .,
          width = 190, height = 190, units = "mm")
